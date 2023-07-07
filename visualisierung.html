@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Polizeigewalt</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: "Bodoni MT", serif;
+    }
+    h1 {
+      font-size: 19pt;
+      color: black;
+    }
+    h1.section-title {
+  position: fixed;
+  top: 0;
+  background-color: white;
+}
+    h2 {
+      font-size: 14pt;
+    }
+    .section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 20px;
+}
+
+.section-title {
+  color: lightgray;
+}
+
+.section-title.active-section {
+  color: black;
+}
+    .legend {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+    }
+    .legend-item span {
+      margin-left: 5px;
+    }
+    .circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-top: 20px;
+}
+
+.circle:nth-child(1) {
+  width: 100px;
+  height: 100px;
+}
+
+.circle:nth-child(2) {
+  width: 75px;
+  height: 75px;
+}
+
+.circle:nth-child(3) {
+  width: 15px;
+  height: 15px;
+}
+.circle:nth-child(3) {
+  background-color: lightgray;
+}
+
+.circle:nth-child(3) + .circle {
+  background-color: darkgray;
+  margin-left: -20px;
+}
+.tooltip {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 5px;
+      font-size: 12px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="section-title">Unterschiede in der Erfahrung mit Polizeigewalt nach Personengruppen</h1>
+  
+  <div id="section1" class="section">
+    <h2 class="section-title">Befragte Personengruppen</h2>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="circle" style="background-color: lightgray; width: 100px; height: 100px;"></div>
+        <span>ohne Migrationshintergrund</span>
+      </div>
+      <div class="legend-item">
+        <div class="circle" style="background-color: darkgray; width: 75px; height: 75px;"></div>
+        <span>mit Migrationshintergrund</span>
+      </div>
+      <div class="legend-item">
+        <div class="circle" style="background-color: lightgray; width: 15px; height: 15px;"></div>
+        <div class="circle" style="background-color: darkgray; width: 135px; height: 135px; margin-left: -20px;"></div>
+        <span>PoC</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    const sectionTitles = document.querySelectorAll('.section-title');
+    const sections = document.querySelectorAll('.section');
+  
+    window.addEventListener('scroll', () => {
+      let currentSection = '';
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+          currentSection = index + 1;
+        }
+      });
+  
+      sectionTitles.forEach((title, index) => {
+        if (index + 1 === currentSection) {
+          title.classList.add('active-section');
+        } else {
+          title.classList.remove('active-section');
+        }
+      });
+    });
+    const data = [
+      { label: "ohne Migrationshintergrund", count: 2788 },
+      { label: "mit Migrationshintergrund", count: 543 },
+      { label: "PoC", count: 164 }
+    ];
+    const circles = d3.select("#section1")
+     .selectAll(".circle")
+     .data(data);
+
+    circles.enter()
+     .append("div")
+     .attr("class", "circle")
+     .style("background-color", (d, i) => i === 2 ? "lightgray" : "darkgray")
+     .style("width", (d) => d.count + "px")
+     .style("height", (d) => d.count + "px")
+     .on("mouseover", (d) => {
+       const number = d.count;
+       d3.select(this).attr("title", number);
+      });
+ 
+  </script>
+  <div id="section2" class="section">
+    <h2 class="section-title">Setting</h2>
+    <!-- Content for the "Setting" section -->
+  </div>
+  
+  <div id="section3" class="section">
+    <h2 class="section-title">Folgen für die Betroffenen</h2>
+    <!-- Content for the "Folgen für die Betroffenen" section -->
+  </div>
+  
+  <div id="section4" class="section">
+    <h2 class="section-title">Anzeigeverhalten</h2>
+    <!-- Content for the "Anzeigeverhalten" section -->
+  </div>
+</body>
+</html>
