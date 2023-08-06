@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Interactive Visualization</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    /* CSS styles for your sections */
+    #heading {
+      position: fixed;
+      top: 5%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Bodoni MT", serif;
+      font-size: 25px;
+    }
+    .hide {
+      display: none;
+    }
+    .section-title {
+      display: flex;
+      flex-direction: column;
+      font-family: "Bodoni MT", serif;
+      font-size: 20px;
+      color: gray;
+    }
+
+    .active-section-title {
+      color: black;
+    }
+
+    #intro-text {
+      position: fixed;
+      display: flex;
+      top: 10%;
+      left: 80%;
+      transform: translateX(-50%);
+      font-family: "Bodoni MT", serif;
+      font-size: 20px;
+      color: gray;
+    }
+    #container {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      /*box-sizing: content-box;*/
+    }
+    #explanation-box {
+      width: 60%; /* adjust as needed */
+      height: 50%; /* adjust as needed */
+      /* other styles... */
+    }
+    #explanation-box2 {
+      width: 60%; /* adjust as needed */
+      height: 50%; /* adjust as needed */
+      /* other styles... */
+    }
+    #explanation-box3 {
+      width: 60%; /* adjust as needed */
+      height: 50%; /* adjust as needed */
+      /* other styles... */
+    }
+
+    #explanation-button {
+      position: absolute;
+      left: 0;
+      top: 100%; /* positions the button below the circles */
+      /* other styles... */
+    }
+    .red-border {
+      border: 2px solid red;
+    }
+
+    #size-label {
+      position: absolute;
+      pointer-events: none;
+
+
+    }
+    
+ 
+   /* gray colour palette: https://www.w3schools.com/colors/colors_shades.asp */
+ 
+ </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/plugins/debug.addIndicators.min.js"></script>
+
+  <h1 id="heading">Unterschiede in der Gewalterfahrung mit der Polizei</h1>
+
+  <div id="intro-text" class="hide">
+    <p>Das Forschungsprojekt KviAPol wird von der Deutschen Forschungsgemeinschaft (DFG) gefördert und untersucht 
+      seit 2018 polizeiliche Gewaltanwendungen und ihre strafrechtliche Aufarbeitung in Deutschland. 
+      Die Ergebnisse des Projekts wurden in zwei Zwischenberichten (2019, 2020), im Buch „Gewalt im Amt“ (2023) 
+      sowie in zahlreichen weiteren Fachpublikationen veröffentlicht. Zum Umfang rechtswidriger Gewaltanwendung 
+      durch Polizeibeamt*innen liegen bislang kaum empirisch gesicherte Erkenntnisse vor. Einerseits werden die 
+      vorhandenen statistischen Zahlen zur Körperverletzung im Amt, die eine äußerst geringe Anklagequote von etwa 
+      2 % ausweisen, höchst unterschiedlich interpretiert. Die Deutungen reichen von einem hohen Anteil 
+      unberechtigter Anzeigen bis hin zur massenhaften rechtswidrigen Privilegierung von Amtsträger*innen. 
+      Andererseits gibt es trotz anhaltender öffentlicher Diskussion praktisch keine Studien 
+      zum Dunkelfeld dieses Deliktsbereichs, obwohl dieses mutmaßlich eine besondere Struktur aufweist. </p>
+  </div>
+
+  <section id="section1">
+    <h2 class="section-title">Befragte</h2>
+    <svg id="circle-container"></svg>
+    <button id="explanation-button" style="font-family: Bodoni MT;">Mehr Infos</button>
+    <div id="explanation-box" style="display: none;">
+  <p>Die Kreise visualisieren die Befragten Personen der verschiedenen Personengruppen. 
+    Es wird deutlich, dass mehr Personen ohne Migrationshintergrund als 
+    Personen mit Migrationshintergrund an der Studie teilgenommen haben.
+    Die Gruppe PoC wurde nachträglich aus Personen mit Migrationshintergrund, 
+    die angegeben hatten, üblicherweise nicht als „deutsch“ aussehend 
+    wahrgenommen zu werden (n = 149), sowie Personen ohne Migrationshintergrund,
+    die zusätzlich zu dieser Angabe von Rassismuserfahrungen im Rahmen des in der Befragung 
+    geschilderten Vorfalls berichteten (n = 15), gebildet. PoC stellen damit einerseits eine spezielle Teilgruppe von Personen mit Migrationshinter-
+    grund dar, gehen andererseits aber auch über diese hinaus.
+  </p>
+</div>
+
+<div id="size-label" style="display: none;">
+  <p></p>
+</div>
+  </section>
+
+  <section id="section2">
+    <h2 class="section-title">Setting</h2>
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Color scale -->
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+
+ <div>
+    <input onclick="update(data1)" type="radio" name="Personengruppe" value="Personen mit Migrationshintergrund"> Personen mit Migrationshintergrund<br>
+    <input onclick="update(data2)" type="radio" name="Personengruppe" value="Personen ohne Migrationshintergrund"> Personen ohne Migrationshintergrund<br>
+    <input onclick="update(data3)" type="radio" name="Personengruppe" value="PoC"> PoC<br>
+  </div>
+<!-- Create a div where the graph will take place -->
+<div id="pieChartSetting"></div>
+
+<button id="explanation-button2" style="font-family: Bodoni MT;">Mehr Infos</button>
+<div id="explanation-box2" style="display: none;">
+  <p>Die Situationen, in denen es zu den berichteten Fällen polizeilicher Gewaltanwendung kam,
+    die die Befragten als rechtswidrig einstuften, lassen sich
+    in drei große Gruppen einteilen.
+    Eine herausgehobene Rolle spielen zunächst Demonstrationen und politische Aktionen.
+    Dass diese stärker mit Formen rechtswidriger polizeilicher Gewaltanwendung belastet sind könnte daran liegen
+    , da es sich sowohl im Bereich der politischen Aktionen und Demonstrationen 
+    als auch bei Fußballspielen um etablierte Konfliktverhältnisse 
+    zwischen der Polizei einerseits und bestimmten gesellschaftlichen Gruppen andererseits handelt, 
+    in denen Auseinandersetzungen durch andere Interaktionsmuster geprägt sind als in sonstigen Einsätzen. Die Diversität der Vorfälle in der dritten Gruppe der sonstigen
+    Einsatzgeschehen zeigt, dass rechtswidrige polizeiliche Gewaltausübung im Prinzip in allen Einsatzsituationen vorkommen
+    kann, wenngleich bestimmte eher gefährdet erscheinen als andere. Vor allem bei den sonstigen Einsatzgeschehen, aber auch bei
+    Fußballspielen und Demonstrationen waren die Befragten in einem erheblichen Anteil der berichteten Fälle (zunächst) 
+    Unbeteiligte an dem Konflikt bzw. die ursprüngliche Maßnahme richtete sich nicht gegen sie.
+     </p>
+</div>
+
+  </section>
+
+  <section id="section3">
+    <h2 class="section-title">Strafverfahren</h2>
+
+    
+    <button id="explanation-button3" style="font-family: Bodoni MT;">Mehr Infos</button>
+    <div id="explanation-box3" style="display: none;">
+      <p>Ein Strafverfahren fand nach Kenntnis der Betroffenen nur in
+        13 % der berichteten Fälle statt.
+        Bei Einsätzen außerhalb von Großveranstaltungen wurden
+        Strafverfahren wegen Körperverletzung im Amt häufiger als im
+        Durchschnitt durchgeführt (22 %), seltener hingegen bei Fällen
+        im Kontext von Demonstrationen/politischen Aktionen (9 %).
+        Vor allem bei Fällen im Kontext von Demonstrationen/politischen Aktionen und Fußball/andere Großveranstaltungen kam
+        als Beweismittel im Strafverfahren polizeiliches und privates Videomaterial häufig vor.
+        Bei Fällen im Rahmen von Demonstrationen/politischen Aktionen und Fußball/andere 
+        Großveranstaltungen war die mangelnde Identifizierbarkeit der handelnden Beamt*innen der am
+        häufigsten angegebene Grund für die Einstellung des Strafverfahrens.
+        Ähnlich wie in der Statistik zeigt die Studie hinsichtlich der Erledigungspraxis 
+        bei Verfahren wegen rechtswidriger Gewaltausübung eine auffallend hohe Einstellungs- und eine entsprechend
+        niedrige Anklagequote.
+      </p>
+    </div>
+  </section>
+
+
+
+  <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-sankey.min.js"></script>
+
+    <div id="container" style="width: 1100px; height: 800px;"></div>
+  <script>
+    // Initialize ScrollMagic controller
+    var controller = new ScrollMagic.Controller();
+
+    // Create scenes for each section
+    var scene1 = new ScrollMagic.Scene({
+      triggerElement: "#section1",
+      duration: 500 // Adjust the duration as needed
+    })
+    .setPin("#section1")
+    .on("enter", function() {
+      document.querySelector("#section1 .section-title").classList.add("active-section-title");
+      document.querySelector("#section2 .section-title").classList.remove("active-section-title");
+      document.querySelector("#section3 .section-title").classList.remove("active-section-title");
+    })
+    .addTo(controller);
+    
+    document.getElementById('explanation-button')
+    .addEventListener('click', function() {
+        var box = document
+        .getElementById('explanation-box');
+        if (box.style.display === "none") {
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+        }
+        });
+
+        document.querySelector("#explanation-button").addEventListener("click", function() {
+        document.querySelector("#explanation-box").classList.toggle("red-border");
+      });
+        // Create SVG container
+    var svg = d3.select("#circle-container")
+      .attr("width", 1300)
+      .attr("height", 800);
+
+// Define circle data
+    var circleData = [
+      { label: "Personen mit Migrationshintergrund", color: "darkgray", size: 543, count: 543 },
+      { label: "Personen ohne Migrationshintergrund", color: "lightgray", size: 2788, count: 2788 },
+      { label: "People of Color", color: "gray", size: 164, count: 164 }
+    ];
+
+// Calculate circle sizes
+    var maxRadius = 250;
+    var maxDataSize = Math.max(...circleData.map(d => d.size));
+    var radiusScale = d3.scaleLinear()
+      .domain([0, maxDataSize])
+      .range([0, maxRadius]);
+
+
+// Create circles
+    var circles = svg.selectAll("circle")
+        .data(circleData)
+        .enter()
+        .append("circle")
+        //.attr("cx", (d, i) => 250 + (maxRadius * 2 + 20) * i)
+        .attr("cx", (d, i) => i < 2 ? 250 + (maxRadius * 2 + 20) * i : 450)
+        .attr("cy", (d, i) => i < 2 ? 250 : 650) // Adjust the y position for the "PoC" circle
+        .attr("r", d => radiusScale(d.size))
+        .attr("fill", d => d.color);
+        
+
+
+  svg.selectAll("circle")// select all circles in your svg
+   .on("mouseenter", function(event, d) { // d is the data bound to the circle
+    // add stroke
+     d3.select(this)
+      .attr("stroke", "red")
+      .attr("stroke-width", 2);  
+
+     d3.select("#size-label")
+      .style("display", "block")
+      .style("left", d3.select(this).attr("cx") + "px") // position label at the circle's center x
+      .style("top", d3.select(this).attr("cy") + "px") // position label at the circle's center y
+      .select("p")
+      .text("n=" + event.count); //n=undefined
+      console.log(d); 
+  })
+  
+  .on("mouseout", function(d) {
+    // remove the tooltip
+    svg.select(".tooltip").remove();
+
+    // remove stroke
+    d3.select(this)
+      .attr("stroke", null);
+
+    // hide size-label
+    d3.select("#size-label").style("display", "none");
+  });
+
+
+// Add labels
+var labels = svg.selectAll("text")
+  .data(circleData)
+  .enter()
+  .append("text")
+  //.attr("x", (d, i) => 250 + (maxRadius * 2 + 20) * i)
+  .attr("x", (d, i) => i < 2 ? 250 + (maxRadius * 2 + 20) * i : 450)
+  .attr("y", (d, i) => i < 2 ? 250 + maxRadius + 40 : 250 + maxRadius * 2)
+  .text(d => d.label)
+  .attr("text-anchor", "middle")
+  .attr("font-family", "Bodoni MT")
+  .attr("font-size", "16px")
+  //.addTo(controller);
+//----------------------------------------------------------------------------------
+   // Create scenes for each section
+    var scene2 = new ScrollMagic.Scene({
+      triggerElement: "#section2",
+      duration: 500 // Adjust the duration as needed
+    })
+    .setPin("#section2")
+    .on("enter", function() {
+      document.querySelector("#section1 .section-title").classList.remove("active-section-title");
+      document.querySelector("#section2 .section-title").classList.add("active-section-title");
+      document.querySelector("#section3 .section-title").classList.remove("active-section-title");
+    })
+    .addTo(controller);
+
+    document.getElementById('explanation-button2')
+      .addEventListener('click', function() {
+        var box = document.getElementById('explanation-box2');
+        box.style.display = box.style.display === "none" ? "block" : "none";
+      });
+
+      document.querySelector("#explanation-button2").addEventListener("click", function() {
+        document.querySelector("#explanation-box2").classList.toggle("red-border");
+      });
+// set the dimensions and margins of the graph
+  var width = 450
+      height = 450
+      margin = 40
+
+  // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+  var radius = Math.min(width, height) / 2 - margin
+
+
+  var svg = d3.select("#pieChartSetting")
+    .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .style("display", "block")
+      .style("margin", "0 auto")
+    .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+  // create 3 data_set
+  var data1 = {politischeAktionen: 53, Großveranstaltungen: 17.7, Andere:29.3}
+  var data2 = {politischeAktionen: 56.2, Großveranstaltungen: 26.1, Andere:17.7}
+  var data3 = {politischeAktionen: 42.1, Großveranstaltungen: 12.8, Andere:45.1}
+
+  // set the color scale
+  var color = d3.scaleOrdinal()
+    .domain(["politische Aktionen", "Großveranstaltungen", "Andere"]) //"Demo/politische Veranstaltung", "Fußball/andere GVA", "andere Einsätze"
+    .range(["#f0f0f0","#bdbdbd","#636363"]);
+
+    // Create a tooltip
+var tooltip = d3.select("#tooltip");
+
+// Define the text for each category
+var tooltipText = {
+  politischeAktionen: "Explanation for politischeAktionen",
+  Großveranstaltungen: "Explanation for Großveranstaltungen",
+  Andere: "Explanation for Andere"
+};
+
+  // A function that create / update the plot for a given variable:
+  function update(data) {
+
+    // Compute the position of each group on the pie:
+    var pie = d3.pie()
+      .value(function(d) {return d.value; })
+      .sort(function(a, b) { console.log(a) ; return d3.ascending(a.key, b.key);} ) // This make sure that group order remains the same in the pie chart
+    var data_ready = pie(d3.entries(data))
+
+    // map to data
+    var u = svg.selectAll("path")
+      .data(data_ready)
+
+
+    // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+    u
+      .enter()
+      .append('path')
+      .merge(u)
+      .transition()
+      .duration(1000)
+      .attr('d', d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius)
+      )
+      .attr('fill', function(d){ return(color(d.data.key)) })
+      .attr("stroke", "white")
+      .style("stroke-width", "2px")
+      .style("opacity", 1)
+
+    // remove the group that is not present anymore
+    u
+      .exit()
+      .remove()
+      .remove()
+      // shape helper to build arcs:
+  var arcGenerator = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius)
+
+    svg.selectAll('text').remove()
+      svg
+    .selectAll('mySlices')
+    .data(data_ready)
+    .enter()
+    .append('text')
+    .text(function(d){ return d.data.key+ ": " + d.data.value + "%"})
+    .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+    .style("text-anchor", "middle")
+    .style("font-size", 17)
+    .style("font-family", "Bodoni MT")
+  }
+  // Initialize the plot with the first dataset
+  update(data1)
+
+
+    var scene3 = new ScrollMagic.Scene({
+      triggerElement: "#section3",
+      duration: 500 // Adjust the duration as needed
+    })
+    .setPin("#section3")
+    .on("enter", function() {
+      document.querySelector("#section1 .section-title").classList.remove("active-section-title");
+      document.querySelector("#section2 .section-title").classList.remove("active-section-title");
+      document.querySelector("#section3 .section-title").classList.add("active-section-title");
+    })
+    .addTo(controller);
+
+    document.getElementById('explanation-button3')
+      .addEventListener('click', function() {
+        var box = document.getElementById('explanation-box3');
+        box.style.display = box.style.display === "none" ? "block" : "none";
+      });
+
+      document.querySelector("#explanation-button3").addEventListener("click", function() {
+        document.querySelector("#explanation-box3").classList.toggle("red-border");
+      });
+
+      anychart.onDocumentReady(function () {
+  
+  // add data
+  const data = [
+{ from: "Politische Aktionen", to: "Strafverfahren eingeleitet", value: 156, ohneMig: 81, mitMig: 19 },
+{ from: "Großveranstaltungen", to: "Strafverfahren eingeleitet", value: 130, ohneMig: 91, mitMig: 9 },
+{ from: "Andere", to: "Strafverfahren eingeleitet", value: 153, ohneMig: 75, mitMig: 25},
+{ from: "Politische Aktionen", to: "Kein Strafverfahren", value: 1539, ohneMig: 85, mitMig: 15  },
+{ from: "Großveranstaltungen", to: "Kein Strafverfahren", value: 601, ohneMig: 87, mitMig: 13  },
+{ from: "Andere", to: "Kein Strafverfahren", value: 539, ohneMig: 75, mitMig: 25  },
+{ from: "Kein Strafverfahren", to: null, value: 1 },
+{ from: "Politische Aktionen", to: "Angabe fehlt", value: 0 },
+{ from: "Großveranstaltungen", to: "Angabe fehlt", value: 0 },
+{ from: "Andere", to: "Angabe fehlt", value: 0 },
+{ from: "Strafverfahren eingeleitet", to: "Eingestellt", value: 319, ohneMig: 83, mitMig: 17},
+{ from: "Eingestellt", to: "Geringfügigkeit", value: 6, ohneMig: 73, mitMig: 27},
+{ from: "Eingestellt", to: "gegen Auflagen", value: 97, ohneMig: 67, mitMig: 33},
+{ from: "Eingestellt", to: "Verjährung", value: 23, ohneMig: 100, mitMig: 0},
+{ from: "Eingestellt", to: null, value: 53, ohneMig: 84, mitMig: 16},
+{ from: "Eingestellt", to: "Mangels hinreichenden Tatverdacht", value: 131, ohneMig: 84, mitMig: 16},
+{ from: "Mangels hinreichenden Tatverdacht", to: "Fehlende Identifizierbarkeit", value: 116, ohneMig: 87, mitMig: 13},
+{ from: "Strafverfahren eingeleitet", to: null, value: 29 , ohneMig: 90, mitMig: 10},
+{ from: "Strafverfahren eingeleitet", to: "Laufend", value: 67, ohneMig: 75, mitMig: 25},
+{ from: "Laufend", to: null, value: 1 },
+{ from: "Strafverfahren eingeleitet", to: "Anklage", value: 19, ohneMig: 83, mitMig: 17},
+{ from: "Strafverfahren eingeleitet", to: "Strafbefehl", value: 5, ohneMig: 80, mitMig: 20}, 
+{ from: "Anklage", to: "Auch Eingestellt", value: 2, ohneMig: 100, mitMig: 0},
+{ from: "Anklage", to: "Freispruch", value: 6, ohneMig: 100, mitMig: 0},   
+{ from: "Anklage", to: null, value: 3 , ohneMig: 67, mitMig: 33},
+{ from: "Anklage", to: "Verurteilung", value: 8, ohneMig: 71, mitMig: 29}
+];
+
+
+  // create a sankey diagram instance
+  let chart = anychart.sankey();
+
+  // load the data to the sankey diagram instance
+  chart.data(data);
+
+  // set the chart's padding
+  chart.padding(20, 40);
+
+chart.palette([
+'#808080',
+'#808080', 
+'#808080', 
+
+'#b69695', // strafverfahren
+'#c1c1c1', // kein strafverfahren
+
+'#c1c1c1', // eingestellt
+'#bc6763', // laufend
+'#bc6763', // anklage
+'#e7e6e6', // mangels hinreichenden Tatverdachts
+
+'#e7e6e6', // Geringgügigkeit
+'#b69695', // gegen Auflagen
+'#e7e6e6', // Verjährung
+'#e7e6e6', // fehlende identifizierbarkeit#cfcbcb
+
+'#d30800', // red Strafbefehl
+'#d30800', // auch eingestellt
+'#d30800',  // freispruch
+'#d30800'  // Verurteilung
+
+]);
+// customize the nodes:
+// set the width
+chart.nodeWidth('40%');
+// set the padding
+chart.nodePadding(30);
+
+// customize the labels
+// configure labels
+chart.node().normal().labels().fontSize(12);
+chart.node().labels().useHtml(true);
+chart.node().labels().fontSize("16");
+chart.node().labels().format("<span style='font-family:Bodoni MT'>{%name}<br>{%value}</span>");
+chart.flow().hovered().labels().enabled(false);
+chart.dropoff().normal().labels().enabled(true);
+chart.dropoff().labels().padding(10);
+chart.dropoff().tooltip().format("Davon:\n {%ohneMig} % Ohne Migrationshintergrund\n{%mitMig} % Mit Migrationshintergund\n");
+
+// configure tooltips of flows Migrationshintergrund Anteile
+chart.flow().tooltip().format("Davon:\n {%ohneMig} % Ohne Migrationshintergrund\n{%mitMig} % Mit Migrationshintergund\n");
+
+
+// configure the visual settings of dropoffs
+chart.dropoff().normal().fill(
+  {keys: ["##F8F8F8 0.4", "#D3D3D3 0.7"], angle: 270}
+      );
+  chart.dropoff().hovered().stroke("#455a64");
+
+
+  // set the chart container id
+  chart.container("container");
+  
+  // draw the chart
+  chart.draw();
+      });
+  </script>
+</body>
+</html>
